@@ -45,23 +45,36 @@ connection_pool = None
 # Git hub Info:
 # GitHub Info
 GITHUB_VERSION_FILE_URL = "https://raw.githubusercontent.com/jpelt/CackyMaps/TBI_COLOR/version.txt"
-GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.0/main.exe"  # Example URL
+GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.1/main.exe"  # Example URL
 
 # Internal Version Number
 CURRENT_VERSION = "v1.1"  # Replace with your current version
+
+
+def change_version():
+    try:
+        # Open the version.txt file in write mode and update it with the previous version
+        with open("version.txt", "w") as file:
+            file.write(CURRENT_VERSION)
+        print(f"Updated version.txt to {CURRENT_VERSION}")
+    except Exception as e:
+        print(f"Error updating version.txt: {e}")
 
 
 def get_latest_version():
     try:
         response = requests.get(GITHUB_VERSION_FILE_URL)
         if response.status_code == 200:
-            return response.text.strip()
+            latest_version = response.text.strip()
+            print(f"Latest version retrieved: {latest_version}")
+            logging.info(f"Latest version retrieved: {latest_version}")  # Log the version
+            return latest_version
         else:
             raise Exception(f"Failed to fetch version file: {response.status_code}")
 
     except Exception as e:
         print(f"Error fetching latest version: {e}")
-        error_logger.error(f" Error fetching latest version: {e}")
+        error_logger.error(f"Error fetching latest version: {e}")
         return None
 
 
@@ -580,6 +593,7 @@ def json_conversion():
 
 if __name__ == "__main__":
     check_for_updates()  # check for updates in develop branch
+    change_version()
     create_default_ini(CONFIG_FILE)
 
     connection_details, json_file_path = read_default_connection()
