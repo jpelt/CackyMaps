@@ -15,6 +15,7 @@ import requests
 import zipfile
 import io
 
+
 logging.basicConfig(filename='exe.log', filemode='w', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -43,7 +44,7 @@ connection_pool = None
 ############################################################
 # Git hub Info:
 # GitHub Info
-GITHUB_VERSION_FILE_URL = "https://github.com/jpelt/CackyMaps/blob/TBI_COLOR/version.txt"
+GITHUB_VERSION_FILE_URL = "https://raw.githubusercontent.com/jpelt/CackyMaps/TBI_COLOR/version.txt"
 GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.0/main.exe"  # Example URL
 
 # Internal Version Number
@@ -57,19 +58,23 @@ def get_latest_version():
             return response.text.strip()
         else:
             raise Exception(f"Failed to fetch version file: {response.status_code}")
+
     except Exception as e:
         print(f"Error fetching latest version: {e}")
+        error_logger.error(f" Error fetching latest version: {e}")
         return None
 
 
 def download_latest_exe():
     try:
-        response = requests.get(GITHUB_EXE_DOWNLOAD_URL, stream=True)
+        print(GITHUB_EXE_DOWNLOAD_URL)
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(GITHUB_EXE_DOWNLOAD_URL, stream=True, headers=headers)
         if response.status_code == 200:
-            with open("app.exe", "wb") as file:
+            with open("main_new.exe", "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
-            print(f"Downloaded latest version of app.exe.")
+            print(f"Downloaded latest version of main_new.exe.")
             return True
         else:
             raise Exception(f"Failed to download EXE: {response.status_code}")
@@ -79,27 +84,32 @@ def download_latest_exe():
 
 
 def check_for_updates():
+    logging.info("Checking for version updates...")
     latest_version = get_latest_version()
 
     if latest_version:
         if latest_version != CURRENT_VERSION:
+            logging.info("New version available. Opening update dialog box")
             root = tk.Tk()
             root.withdraw()
             update_prompt = messagebox.askokcancel(
                 "Update Available",
-                f"A new version ({latest_version}) is available. Would you like to update?"
+                f"A new version is available. Would you like to update?"
             )
             root.destroy()
 
             if update_prompt:
                 if download_latest_exe():
                     messagebox.showinfo("Update Complete", "The application has been updated to the latest version.")
+                    logging.info("Update completed")
                     sys.exit("Application needs to restart to apply updates.")
                 else:
                     messagebox.showerror("Update Failed", "Failed to download the latest version.")
         else:
+            logging.info("No updates available")
             print("No updates available.")
     else:
+        error_logger.error("Unable to check for updates")
         print("Unable to check for updates.")
 
 
