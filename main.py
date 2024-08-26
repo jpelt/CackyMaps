@@ -14,6 +14,9 @@ from datetime import datetime, date, time
 import requests
 import zipfile
 import io
+import os
+import shutil
+import sys
 
 
 logging.basicConfig(filename='exe.log', filemode='w', level=logging.INFO,
@@ -48,7 +51,7 @@ GITHUB_VERSION_FILE_URL = "https://raw.githubusercontent.com/jpelt/CackyMaps/TBI
 GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.1/main.exe"  # Example URL
 
 # Internal Version Number
-CURRENT_VERSION = "v1.2"  # Replace with your current version
+CURRENT_VERSION = "v1.3"  # Replace with your current version
 
 
 def change_version():
@@ -115,6 +118,7 @@ def check_for_updates():
                 if download_latest_exe():
                     messagebox.showinfo("Update Complete", "The application has been updated to the latest version.")
                     logging.info("Update completed")
+                    replace_old_exe()
                     sys.exit("Application needs to restart to apply updates.")
                 else:
                     messagebox.showerror("Update Failed", "Failed to download the latest version.")
@@ -124,6 +128,15 @@ def check_for_updates():
     else:
         error_logger.error("Unable to check for updates")
         print("Unable to check for updates.")
+
+
+def replace_old_exe():
+    try:
+        # Exit the current application and run the batch script
+        os.system("start replace_and_restart.bat")
+        sys.exit("Application needs to close to replace the EXE.")
+    except Exception as e:
+        print(f"Error replacing EXE: {e}")
 
 
 ################################################################################
@@ -592,8 +605,8 @@ def json_conversion():
 ##############################################################
 
 if __name__ == "__main__":
-    check_for_updates()  # check for updates in develop branch
     change_version()
+    check_for_updates()  # check for updates in develop branch
     create_default_ini(CONFIG_FILE)
 
     connection_details, json_file_path = read_default_connection()
