@@ -11,6 +11,9 @@ import configparser
 import sys
 import logging
 from datetime import datetime, date, time
+import requests
+import zipfile
+import io
 
 logging.basicConfig(filename='exe.log', filemode='w', level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
@@ -36,6 +39,68 @@ previous_data = None
 connection_pool = None
 # call_count = 0
 
+
+############################################################
+# Git hub Info:
+# GitHub Info
+GITHUB_VERSION_FILE_URL = "https://github.com/jpelt/CackyMaps/blob/TBI_COLOR/version.txt"
+GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.0/main.exe"  # Example URL
+
+# Internal Version Number
+CURRENT_VERSION = "v1.1"  # Replace with your current version
+
+def get_latest_version():
+    try:
+        response = requests.get(GITHUB_VERSION_FILE_URL)
+        if response.status_code == 200:
+            return response.text.strip()
+        else:
+            raise Exception(f"Failed to fetch version file: {response.status_code}")
+    except Exception as e:
+        print(f"Error fetching latest version: {e}")
+        return None
+
+def download_latest_exe():
+    try:
+        response = requests.get(GITHUB_EXE_DOWNLOAD_URL, stream=True)
+        if response.status_code == 200:
+            with open("app.exe", "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+            print(f"Downloaded latest version of app.exe.")
+            return True
+        else:
+            raise Exception(f"Failed to download EXE: {response.status_code}")
+    except Exception as e:
+        print(f"Error downloading EXE: {e}")
+        return False
+
+def check_for_updates():
+    latest_version = get_latest_version()
+
+    if latest_version:
+        if latest_version != CURRENT_VERSION:
+            root = tk.Tk()
+            root.withdraw()
+            update_prompt = messagebox.askokcancel(
+                "Update Available",
+                f"A new version ({latest_version}) is available. Would you like to update?"
+            )
+            root.destroy()
+
+            if update_prompt:
+                if download_latest_exe():
+                    messagebox.showinfo("Update Complete", "The application has been updated to the latest version.")
+                    sys.exit("Application needs to restart to apply updates.")
+                else:
+                    messagebox.showerror("Update Failed", "Failed to download the latest version.")
+        else:
+            print("No updates available.")
+    else:
+        print("Unable to check for updates.")
+
+
+################################################################################
 
 def init_connection_pool(connection_details):
     global connection_pool
@@ -463,7 +528,7 @@ def map_export_json_data(json_file_path):
                             # Update the feature's properties with the corresponding converted result
                             feature["properties"].update(result_mapping[cur_co_field_no_lower])
                             null_logger.info(f"Updated feature with field: {cur_co_field_no_lower} "
-                             f"with data: {result_mapping[cur_co_field_no_lower]}")
+                                             f"with data: {result_mapping[cur_co_field_no_lower]}")
                             changes_made = True
 
             if changes_made:
@@ -501,6 +566,7 @@ def json_conversion():
 ##############################################################
 
 if __name__ == "__main__":
+    check_for_updates("develop") # check for updates in develop branch
     create_default_ini(CONFIG_FILE)
 
     connection_details, json_file_path = read_default_connection()
@@ -517,4 +583,3 @@ if __name__ == "__main__":
         json_conversion()
 
 
-## TEST
