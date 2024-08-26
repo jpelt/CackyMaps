@@ -51,7 +51,7 @@ GITHUB_VERSION_FILE_URL = "https://raw.githubusercontent.com/jpelt/CackyMaps/TBI
 GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.1/main.exe"  # Example URL
 
 # Internal Version Number
-CURRENT_VERSION = "v1.3"  # Replace with your current version
+CURRENT_VERSION = "v1.6"  # Replace with your current version
 
 
 def change_version():
@@ -87,10 +87,10 @@ def download_latest_exe():
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(GITHUB_EXE_DOWNLOAD_URL, stream=True, headers=headers)
         if response.status_code == 200:
-            with open("main_new.exe", "wb") as file:
+            with open("main.exe", "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
-            print(f"Downloaded latest version of main_new.exe.")
+            print(f"Downloaded latest version of main.exe.")
             return True
         else:
             raise Exception(f"Failed to download EXE: {response.status_code}")
