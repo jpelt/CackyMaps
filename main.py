@@ -49,6 +49,7 @@ GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/
 # Internal Version Number
 CURRENT_VERSION = "v1.1"  # Replace with your current version
 
+
 def get_latest_version():
     try:
         response = requests.get(GITHUB_VERSION_FILE_URL)
@@ -59,6 +60,7 @@ def get_latest_version():
     except Exception as e:
         print(f"Error fetching latest version: {e}")
         return None
+
 
 def download_latest_exe():
     try:
@@ -74,6 +76,7 @@ def download_latest_exe():
     except Exception as e:
         print(f"Error downloading EXE: {e}")
         return False
+
 
 def check_for_updates():
     latest_version = get_latest_version()
@@ -566,7 +569,7 @@ def json_conversion():
 ##############################################################
 
 if __name__ == "__main__":
-    check_for_updates("develop") # check for updates in develop branch
+    check_for_updates()  # check for updates in develop branch
     create_default_ini(CONFIG_FILE)
 
     connection_details, json_file_path = read_default_connection()
