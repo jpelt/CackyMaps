@@ -48,7 +48,7 @@ GITHUB_VERSION_FILE_URL = "https://raw.githubusercontent.com/jpelt/CackyMaps/TBI
 GITHUB_EXE_DOWNLOAD_URL = "https://github.com/jpelt/CackyMaps/releases/download/v1.1/main.exe"  # Example URL
 
 # Internal Version Number
-CURRENT_VERSION = "v1.1"  # Replace with your current version
+CURRENT_VERSION = "v1.2"  # Replace with your current version
 
 
 def change_version():
